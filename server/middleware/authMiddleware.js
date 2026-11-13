@@ -54,14 +54,15 @@ export const authenticateUser = async (req, res, next) => {
   }
 };
 
-// Admin-only access
-export const adminOnly = (req, res, next) => {
-  if (req.user && req.user.role === "admin") {
-    return next();
-  }
-
-  return res.status(403).json({
-    success: false,
-    message: "Access denied. Admin only.",
-  });
-};
+// Role-based access
+export const authorizeRoles =
+  (...roles) =>
+  (req, res, next) => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      res.status(403);
+      return next(
+        new Error("You do not have permission to perform this action"),
+      );
+    }
+    next();
+  };

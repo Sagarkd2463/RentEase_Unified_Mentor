@@ -33,11 +33,19 @@ const cartSchema = new mongoose.Schema(
     items: {
       type: [cartItemSchema],
       default: [],
+      validate: {
+        validator(items) {
+          const productIds = items.map((item) => item.product.toString());
+
+          return productIds.length === new Set(productIds).size;
+        },
+        message: "A product can only appear once in the cart",
+      },
     },
   },
   { timestamps: true },
 );
 
-const Cart = mongoose.model("cart", cartSchema);
+const Cart = mongoose.model("Cart", cartSchema);
 
 export default Cart;
